@@ -11,3 +11,33 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+model User {
+  id           String   @id @default(cuid())
+  name         String   @db.VarChar(255)
+  email        String   @unique @db.VarChar(255)
+  passwordHash String
+  createdAt    DateTime @default(now())
+  urls         Url[]
+}
+
+model Url {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  originalUrl String
+  user        User     @relation(fields: [userId], references: [id])
+  userId      String
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+  clicks      Click[]
+}
+
+model Click {
+  id        String   @id @default(cuid())
+  url       Url      @relation(fields: [urlid], references: [id])
+  urlid     String
+  country   String
+  browser   String
+  device    String
+  createdAt DateTime @default(now())
+}
