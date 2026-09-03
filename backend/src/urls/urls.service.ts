@@ -1,4 +1,9 @@
-import { create, getUrlByCode, registerClick } from "./urls.repository";
+import {
+  create,
+  getUrlByCode,
+  listUrls,
+  registerClick,
+} from "./urls.repository";
 import { nanoid } from "nanoid";
 
 export async function createUrl(
@@ -23,4 +28,8 @@ export async function newclick(data: {
   device: string;
 }) {
   return await registerClick(data);
+}
+
+export async function getAllUrls(userId: string) {
+  return await listUrls(userId);
 }

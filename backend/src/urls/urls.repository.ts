@@ -24,3 +24,8 @@ export async function registerClick(data: {
   const click = await prisma.click.create({ data });
   return click;
 }
+
+export async function listUrls(userId: string) {
+  const urls = await prisma.url.findMany({ where: { userId } });
+  return urls;
+}
