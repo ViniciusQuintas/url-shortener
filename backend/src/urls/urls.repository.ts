@@ -29,3 +29,12 @@ export async function listUrls(userId: string) {
   const urls = await prisma.url.findMany({ where: { userId } });
   return urls;
 }
+
+export async function deleteUrl(id: string) {
+  return await prisma.url.delete({ where: { id } });
+}
+
+export async function findById(id: string) {
+  const url = await prisma.url.findUnique({ where: { id } });
+  return url;
+}

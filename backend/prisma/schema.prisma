@@ -34,7 +34,7 @@ model Url {
 
 model Click {
   id        String   @id @default(cuid())
-  url       Url      @relation(fields: [urlid], references: [id])
+  url       Url      @relation(fields: [urlid], references: [id], onDelete: Cascade)
   urlid     String
   country   String
   browser   String

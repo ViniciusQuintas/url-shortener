@@ -1,5 +1,7 @@
 import {
   create,
+  deleteUrl,
+  findById,
   getUrlByCode,
   listUrls,
   registerClick,
@@ -32,4 +34,12 @@ export async function newclick(data: {
 
 export async function getAllUrls(userId: string) {
   return await listUrls(userId);
+}
+
+export async function deleteUrlById(urlid: string) {
+  return await deleteUrl(urlid);
+}
+
+export async function getUrlById(id: string) {
+  return await findById(id);
 }
