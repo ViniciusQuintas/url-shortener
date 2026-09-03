@@ -9,3 +9,18 @@ export async function create(data: {
   const url = await prisma.url.create({ data });
   return url;
 }
+
+export async function getUrlByCode(code: string) {
+  const url = await prisma.url.findUnique({ where: { code } });
+  return url;
+}
+
+export async function registerClick(data: {
+  urlid: string;
+  country: string;
+  browser: string;
+  device: string;
+}) {
+  const click = await prisma.click.create({ data });
+  return click;
+}
