@@ -1,3 +1,4 @@
+import { AppError } from "../errors/AppError";
 import {
   create,
   deleteUrl,
@@ -20,7 +21,13 @@ export async function createUrl(
 }
 
 export async function getUrl(code: string) {
-  return await getUrlByCode(code);
+  const url = await getUrlByCode(code);
+
+  if (!url) {
+    throw new AppError("URL not found", 404);
+  }
+
+  return url;
 }
 
 export async function newclick(data: {
@@ -41,5 +48,10 @@ export async function deleteUrlById(urlid: string) {
 }
 
 export async function getUrlById(id: string) {
-  return await findById(id);
+  const url = await findById(id);
+  if (!url) {
+    throw new AppError("URL not found", 404);
+  }
+
+  return url;
 }

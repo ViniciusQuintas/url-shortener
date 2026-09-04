@@ -5,73 +5,46 @@ import {
   getAllUrls,
   getUrlById,
 } from "./urls.service";
+import { AppError } from "../errors/AppError";
 const router = express.Router();
 
 router.post("/", async (req: Request, res: Response) => {
-  try {
-    if (!req.body || !req.body.originalUrl || !req.user) {
-      throw new Error("Missing a required data");
-    }
-
-    const data = req.body;
-    const userId = req.user.id;
-
-    const url = await createUrl(data.originalUrl, userId, data?.expiresAt);
-    res.status(201).json({ url });
-  } catch (error) {
-    if (error instanceof Error) {
-      res.status(400).json({ message: error.message });
-    } else {
-      res.status(400).json({ message: String(error) });
-    }
+  if (!req.body || !req.body.originalUrl || !req.user) {
+    throw new AppError("Missing a required data", 400);
   }
+
+  const data = req.body;
+  const userId = req.user.id;
+
+  const url = await createUrl(data.originalUrl, userId, data?.expiresAt);
+  res.status(201).json({ url });
 });
 
 router.get("/", async (req: Request, res: Response) => {
-  try {
-    if (!req.user) {
-      throw new Error("Missing a required data");
-    }
-
-    const userId = req.user.id;
-    const urls = await getAllUrls(userId);
-    res.status(201).json({ urls });
-  } catch (error) {
-    if (error instanceof Error) {
-      res.status(400).json({ message: error.message });
-    } else {
-      res.status(400).json({ message: String(error) });
-    }
+  if (!req.user) {
+    throw new AppError("Missing a required data", 400);
   }
+
+  const userId = req.user.id;
+  const urls = await getAllUrls(userId);
+  res.status(200).json({ urls });
 });
 
 router.delete("/:id", async (req: Request, res: Response) => {
-  try {
-    if (!req.user) {
-      throw new Error("Missing a required data");
-    }
-
-    const urlId = req.params.id as string;
-
-    const url = await getUrlById(urlId);
-
-    if (!url) {
-      return res.status(404).json({ message: "URL not found" });
-    }
-
-    if (url.userId !== req.user.id) {
-      return res.status(403).json({ error: "Forbidden" });
-    }
-
-    const deleteUrl = await deleteUrlById(urlId);
-    res.status(204).send();
-  } catch (error) {
-    if (error instanceof Error) {
-      res.status(400).json({ message: error.message });
-    } else {
-      res.status(400).json({ message: String(error) });
-    }
+  if (!req.user) {
+    throw new AppError("Missing a required data", 400);
   }
+
+  const urlId = req.params.id as string;
+
+  const url = await getUrlById(urlId);
+
+  if (url.userId !== req.user.id) {
+    return res.status(403).json({ error: "Forbidden" });
+  }
+
+  await deleteUrlById(urlId);
+  res.status(204).send();
 });
 
 export default router;
