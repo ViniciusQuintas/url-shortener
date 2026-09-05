@@ -1,4 +1,5 @@
 import { AppError } from "../errors/AppError";
+import { redis } from "../lib/redis";
 import {
   create,
   deleteUrl,
@@ -43,8 +44,9 @@ export async function getAllUrls(userId: string) {
   return await listUrls(userId);
 }
 
-export async function deleteUrlById(urlid: string) {
-  return await deleteUrl(urlid);
+export async function deleteUrlById(urlid: string, code: string) {
+  await deleteUrl(urlid);
+  return await redis.del(`url:${code}`);
 }
 
 export async function getUrlById(id: string) {

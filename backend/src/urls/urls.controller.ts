@@ -43,7 +43,7 @@ router.delete("/:id", async (req: Request, res: Response) => {
     return res.status(403).json({ error: "Forbidden" });
   }
 
-  await deleteUrlById(urlId);
+  await deleteUrlById(urlId, url.code);
   res.status(204).send();
 });
 
