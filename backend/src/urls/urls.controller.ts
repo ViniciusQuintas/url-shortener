@@ -3,6 +3,7 @@ import {
   createUrl,
   deleteUrlById,
   getAllUrls,
+  getAnalyticsById,
   getUrlById,
 } from "./urls.service";
 import { AppError } from "../errors/AppError";
@@ -45,6 +46,18 @@ router.delete("/:id", async (req: Request, res: Response) => {
 
   await deleteUrlById(urlId, url.code);
   res.status(204).send();
+});
+
+router.get("/:id/analytics", async (req: Request, res: Response) => {
+  if (!req.user) {
+    throw new AppError("Missing a required data", 400);
+  }
+
+  const urlId = req.params.id as string;
+
+  const analytics = await getAnalyticsById(urlId, req.user.id);
+
+  res.status(200).json({ analytics });
 });
 
 export default router;

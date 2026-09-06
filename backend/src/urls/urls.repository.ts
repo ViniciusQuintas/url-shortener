@@ -38,3 +38,22 @@ export async function findById(id: string) {
   const url = await prisma.url.findUnique({ where: { id } });
   return url;
 }
+
+export async function deleteManyUrls() {
+  return await prisma.url.deleteMany({
+    where: { expiresAt: { lt: new Date() } },
+  });
+}
+
+export async function getAnalytics(urlId: string) {
+  const analytics = await prisma.$queryRaw`
+    SELECT 
+      DATE_TRUNC('day', "createdAt") AS "date",
+      COUNT(*)::int AS clicks 
+    FROM "Click" 
+    WHERE "urlid" = ${urlId}
+    GROUP BY "date"
+  `;
+
+  return analytics;
+}

@@ -2,8 +2,10 @@ import { AppError } from "../errors/AppError";
 import { redis } from "../lib/redis";
 import {
   create,
+  deleteManyUrls,
   deleteUrl,
   findById,
+  getAnalytics,
   getUrlByCode,
   listUrls,
   registerClick,
@@ -56,4 +58,18 @@ export async function getUrlById(id: string) {
   }
 
   return url;
+}
+
+export async function deleteExpiresUrls() {
+  return await deleteManyUrls();
+}
+
+export async function getAnalyticsById(urlId: string, userId: string) {
+  const url = await getUrlById(urlId);
+
+  if (url.userId != userId) {
+    throw new AppError("Forbidden", 403);
+  }
+
+  return await getAnalytics(urlId);
 }

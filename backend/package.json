@@ -19,7 +19,9 @@
     "ioredis": "^6.0.0",
     "jsonwebtoken": "^9.0.3",
     "nanoid": "^6.0.1",
-    "prisma": "^7.9.1"
+    "node-cron": "^4.6.0",
+    "prisma": "^7.9.1",
+    "ua-parser-js": "^2.0.10"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
