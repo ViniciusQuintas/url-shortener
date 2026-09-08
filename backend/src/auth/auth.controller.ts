@@ -11,7 +11,9 @@ router.post("/register", async (req, res) => {
   const user = req.body;
 
   await register(user.name, user.email, user.password);
-  res.status(201).send("User created successfully");
+  res.status(201).json({
+    message: "User created successfully",
+  });
 });
 
 router.post("/login", async (req, res) => {

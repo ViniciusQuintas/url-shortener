@@ -45,7 +45,7 @@ router.delete("/:id", async (req: Request, res: Response) => {
   }
 
   await deleteUrlById(urlId, url.code);
-  res.status(204).send();
+  res.status(204).end();
 });
 
 router.get("/:id/analytics", async (req: Request, res: Response) => {
