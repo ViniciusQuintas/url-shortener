@@ -1,6 +1,6 @@
 "use client";
 
-import { Copy } from "lucide-react";
+import { ChartNoAxesCombined, Copy } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { toast } from "sonner";
@@ -16,7 +16,7 @@ interface UrlCardProps {
 }
 
 export default function UrlCard({ url }: UrlCardProps) {
-  const shortUrl = `${process.env.NEXT_PUBLIC_REDIRECT_API_URL}/${url.code}`;
+  const shortUrl = `${process.env.NEXT_PUBLIC_REDIRECT_API_URL}/urls/${url.code}`;
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(shortUrl);
@@ -35,6 +35,9 @@ export default function UrlCard({ url }: UrlCardProps) {
         </Link>
 
         <div className="flex shrink-0 gap-3">
+          <Link href={`/dashboard/${url.id}`}>
+            <ChartNoAxesCombined className="size-5 text-warning hover:opacity-60 cursor-pointer" />
+          </Link>
           <button onClick={handleCopy}>
             <Copy className="size-5 text-primary hover:opacity-60 cursor-pointer" />
           </button>

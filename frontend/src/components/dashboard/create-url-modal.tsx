@@ -1,6 +1,6 @@
 "use client";
 
-import { UrlFormData, urlSchema } from "@/app/(dashboard)/dashboard/url.schema";
+import { UrlFormData, urlSchema } from "@/schemas/url.schema";
 import { createUrlAction } from "@/actions/urls";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -56,11 +56,11 @@ export default function CreateUrlModal() {
   const onSubmit = (data: UrlFormData) => {
     setServerError(null);
 
-    const rawDate = data.expiresAt as string | undefined;
-
     const payload = {
       originalUrl: data.originalUrl,
-      expiresAt: rawDate ? new Date(rawDate).toISOString() : undefined,
+      expiresAt: data.expiresAt
+        ? new Date(`${data.expiresAt}T23:59:59`).toISOString()
+        : undefined,
     };
 
     mutation.mutate(payload);

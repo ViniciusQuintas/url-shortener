@@ -6,3 +6,8 @@ export interface Url {
   expiresAt?: string;
   createdAt: string;
 }
+
+export interface Analytic {
+  date: string;
+  clicks: number;
+}

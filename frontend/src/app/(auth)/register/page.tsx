@@ -6,10 +6,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { cn } from "cn";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { RegisterFormData, registerSchema } from "./register.schema";
 import { FlipWords } from "@/components/ui/flip-words";
 import { TypewriterEffectSmooth } from "@/components/ui/typewriter-effect";
 import { toast } from "sonner";
+import { RegisterFormData, registerSchema } from "@/schemas/register.schema";
 
 export default function RegisterPage() {
   const {

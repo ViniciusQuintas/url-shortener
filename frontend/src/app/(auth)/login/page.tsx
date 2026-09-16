@@ -2,11 +2,11 @@
 import Link from "next/link";
 import { Link as LinkUrl } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { LoginFormData, loginSchema } from "./login.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { cn } from "cn";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { LoginFormData, loginSchema } from "@/schemas/login.schema";
 
 export default function LoginPage() {
   const {

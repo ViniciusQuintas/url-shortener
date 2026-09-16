@@ -19,7 +19,7 @@ export async function createUrl(
 ) {
   const code = nanoid(6);
 
-  return await create({ code, originalUrl, userId });
+  return await create({ code, originalUrl, userId, expiresAt });
 }
 
 export async function getUrl(code: string) {

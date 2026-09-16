@@ -58,3 +58,21 @@ export async function deleteUrl(id: string) {
 
   return response;
 }
+
+export async function getUrlAnalytics(id: string) {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+
+  if (!token) {
+    throw new Error("Unauthorized");
+  }
+
+  const response = await apiFetch(`/urls/${id}/analytics`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return response.analytics;
+}

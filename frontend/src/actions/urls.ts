@@ -1,5 +1,10 @@
 "use server";
-import { createUrl, deleteUrl, getUrls } from "@/services/urls";
+import {
+  createUrl,
+  deleteUrl,
+  getUrlAnalytics,
+  getUrls,
+} from "@/services/urls";
 
 export async function getUrlsAction() {
   return await getUrls();
@@ -14,4 +19,8 @@ export async function createUrlAction(data: {
 
 export async function deleteUrlAction(id: string) {
   await deleteUrl(id);
+}
+
+export async function getUrlsAnalyticsAction(id: string) {
+  return await getUrlAnalytics(id);
 }
