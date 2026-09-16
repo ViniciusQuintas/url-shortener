@@ -14,7 +14,6 @@ export default function UrlList() {
 
   const now = new Date();
 
-  // Início e fim da semana atual
   const startOfWeek = new Date(now);
   startOfWeek.setHours(0, 0, 0, 0);
   startOfWeek.setDate(now.getDate() - now.getDay());

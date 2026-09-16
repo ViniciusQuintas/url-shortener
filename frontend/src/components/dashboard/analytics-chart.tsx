@@ -1,4 +1,3 @@
-// @/components/AnalyticsChart.tsx
 "use client";
 
 import {
@@ -23,7 +22,7 @@ export function AnalyticsChart({ data }: ChartProps) {
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
           data={data}
-          margin={{ top: 15, right: 20, left: -10, bottom: 5 }} // Pequeno ajuste de margem
+          margin={{ top: 15, right: 20, left: -10, bottom: 5 }}
         >
           <CartesianGrid
             strokeDasharray="3 3"
@@ -31,7 +30,6 @@ export function AnalyticsChart({ data }: ChartProps) {
             stroke="#e2e8f0"
           />
 
-          {/* Eixo X: Evita sobreposição de textos se houver muitas datas */}
           <XAxis
             dataKey="date"
             tickLine={false}
@@ -39,20 +37,18 @@ export function AnalyticsChart({ data }: ChartProps) {
             dy={10}
             stroke="#64748b"
             style={{ fontSize: "12px" }}
-            minTickGap={20} // Pula datas automaticamente se faltar espaço
+            minTickGap={20}
           />
 
-          {/* Eixo Y: Garante apenas números inteiros e remove linhas desnecessárias */}
           <YAxis
             tickLine={false}
             axisLine={false}
             dx={-5}
             stroke="#64748b"
             style={{ fontSize: "12px" }}
-            allowDecimals={false} // IMPEDE cliques quebrados como 1.5 ou 2.8
+            allowDecimals={false}
           />
 
-          {/* Customização do Balão ao passar o mouse */}
           <Tooltip
             contentStyle={{
               backgroundColor: "#fff",
@@ -64,14 +60,13 @@ export function AnalyticsChart({ data }: ChartProps) {
 
           <Legend verticalAlign="top" height={36} />
 
-          {/* Linha do Gráfico principal */}
           <Line
-            name="Number of Clicks" // Nome amigável na legenda e tooltip
+            name="Number of Clicks"
             type="monotone"
             dataKey="clicks"
             stroke="#2563eb"
-            strokeWidth={2} // Linha levemente mais grossa para melhor legibilidade
-            dot={{ r: 4, strokeWidth: 2 }} // Pontos visíveis em cada dia
+            strokeWidth={2}
+            dot={{ r: 4, strokeWidth: 2 }}
             activeDot={{ r: 6 }}
           />
         </LineChart>
