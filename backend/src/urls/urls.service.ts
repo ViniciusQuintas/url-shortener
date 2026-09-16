@@ -18,9 +18,8 @@ export async function createUrl(
   expiresAt?: Date,
 ) {
   const code = nanoid(6);
-  expiresAt = expiresAt ?? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
-  return await create({ code, originalUrl, userId, expiresAt });
+  return await create({ code, originalUrl, userId });
 }
 
 export async function getUrl(code: string) {
