@@ -2,149 +2,135 @@
 
 A full-stack URL shortener built with TypeScript, Next.js, Node.js, PostgreSQL, and Redis.
 
-The project is being developed as a practical exercise in building and evolving a full-stack application, with a focus on authentication, caching, background jobs, analytics, API design, and application architecture.
+The project was developed incrementally as a practical exercise in building and evolving a production-oriented full-stack application, with a focus on authentication, caching, background jobs, analytics, API design, and application architecture.
 
 ## Overview
 
-The application allows authenticated users to create and manage shortened URLs.
+The application allows authenticated users to create and manage shortened URLs. Each URL can have an optional expiration date. When a shortened URL is accessed, the application redirects the user to the original URL and records information about the access for analytics purposes.
 
-Each URL can have an optional expiration date. When a shortened URL is accessed, the application redirects the user to the original URL and records information about the access for analytics.
+**Features:**
 
-The project currently includes:
-
-* User registration and authentication
-* URL creation and management
-* Short URL redirection
-* Optional URL expiration
-* Click tracking
-* Basic click analytics
-* Browser and device information
-* Redis caching
-* Rate limiting
-* Background cleanup jobs
-* PostgreSQL persistence
-* Docker Compose development environment
-* Web dashboard
+- User registration and authentication with JWT
+- URL creation, management, and deletion
+- Short URL redirection with Redis caching
+- Optional URL expiration with automatic cleanup
+- Click tracking with browser and device detection
+- Analytics dashboard with click charts and metrics
+- Rate limiting on URL creation
+- Docker Compose development environment
 
 ## Tech Stack
 
 ### Frontend
 
-* Next.js
-* React
-* TypeScript
-* TanStack Query
-* React Hook Form
-* Zod
-* Tailwind CSS
-* Recharts
-* shadcn/ui
+- Next.js (App Router)
+- React + TypeScript
+- TanStack Query
+- React Hook Form + Zod
+- Tailwind CSS + shadcn/ui
+- Recharts
 
 ### Backend
 
-* Node.js
-* Express
-* TypeScript
-* Prisma
-* PostgreSQL
-* Redis
-* JWT
-* bcrypt
-* node-cron
-* nanoid
-* ua-parser-js
+- Node.js + Express + TypeScript
+- Prisma + PostgreSQL
+- Redis (caching + rate limiting)
+- JWT + bcrypt
+- node-cron
+- nanoid
+- ua-parser-js
 
 ### Infrastructure
 
-* Docker
-* Docker Compose
+- Docker + Docker Compose
 
 ## Architecture
 
-The application is split into separate frontend and backend applications.
-
-```text
+```
 url-shortener/
 ├── backend/
 │   ├── prisma/
 │   └── src/
-│       ├── auth/
-│       ├── errors/
-│       ├── jobs/
-│       ├── lib/
-│       ├── middlewares/
-│       └── urls/
+│       ├── auth/           # register, login, JWT middleware
+│       ├── errors/         # AppError class
+│       ├── jobs/           # cron job for expired URL cleanup
+│       ├── lib/            # Prisma client, Redis client, ua-parser
+│       ├── middlewares/    # auth, rate limiting, error handler
+│       └── urls/           # URL creation, redirect, analytics
 │
 └── frontend/
     └── src/
-        ├── actions/
-        ├── app/
-        ├── components/
-        ├── interfaces/
-        ├── lib/
-        ├── provider/
-        ├── schemas/
-        └── services/
+        ├── actions/        # server actions
+        ├── app/            # Next.js App Router pages
+        ├── components/     # UI components
+        ├── services/       # API calls
+        └── lib/            # utilities
 ```
 
-The backend follows a controller, service, and repository structure. Cross-cutting concerns such as authentication, rate limiting, and error handling are handled through middleware.
+The backend follows a controller → service → repository layered structure. Authentication, rate limiting, and error handling are handled through middleware applied at the router level.
 
-The frontend uses Next.js App Router and separates application routes, actions, components, services, schemas, and shared utilities.
+The frontend uses Next.js App Router with TanStack Query for server state management and React Hook Form with Zod for form validation.
 
 ## Data Model
 
-The main entities are:
+```
+User
+  id, name, email, passwordHash, createdAt
 
-* `User` — application users and their credentials
-* `Url` — shortened URLs owned by users
-* `Click` — access events associated with shortened URLs
+Url
+  id, code, originalUrl, userId, expiresAt, createdAt
 
-Each click can store information such as country, browser, device, and timestamp.
+Click
+  id, urlId, country, browser, device, createdAt
+```
 
-PostgreSQL is used as the primary data store, with Prisma handling database access and migrations.
+Each click stores the browser, device type, and timestamp of the access event. This data feeds the analytics dashboard.
 
-## Caching and Rate Limiting
+## Caching
 
-Redis is used to reduce database access for URL redirects and to support rate limiting.
+Redis is used for two purposes:
 
-The redirect flow can use cached URL data when available, while the database remains the source of persistent data.
+**URL redirect caching** — when a shortened URL is accessed, the application checks Redis first. On a cache miss, it fetches from PostgreSQL and stores the result with a 1-hour TTL. On delete, the cache entry is invalidated immediately.
 
-Rate limiting is implemented at the API middleware level to prevent excessive requests to the application.
+**Rate limiting** — each authenticated user has a Redis counter with a 1-hour TTL. After 10 URL creations per hour, subsequent requests return `429 Too Many Requests`.
 
 ## Background Jobs
 
-The backend uses `node-cron` for scheduled tasks.
+A `node-cron` job runs daily at midnight (America/Sao_Paulo) and deletes all URLs where `expiresAt < now()` from the database.
 
-One of the current jobs is responsible for cleaning up expired URLs from the database.
+## API Endpoints
 
-## Analytics
+### Auth
 
-The application records click events when shortened URLs are accessed.
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/auth/register` | Create a new user |
+| POST | `/auth/login` | Authenticate and receive a JWT |
 
-The dashboard uses this data to provide information about URL usage, including click counts and a chart-based view of activity.
+### URLs (protected — requires `Authorization: Bearer <token>`)
 
-The collected data currently includes information such as:
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/urls` | Create a shortened URL |
+| GET | `/urls` | List all URLs for the authenticated user |
+| DELETE | `/urls/:id` | Delete a URL owned by the user |
+| GET | `/urls/:id/analytics` | Get click analytics for a URL |
 
-* Country
-* Browser
-* Device
-* Timestamp
+### Public
 
-## Authentication
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/urls/:code` | Redirect to the original URL |
 
-Authentication is implemented using JWT.
-
-The backend provides registration and login endpoints, while protected URL operations require an authenticated user.
-
-Passwords are stored as hashes using bcrypt rather than being stored directly.
 
 ## Running Locally
 
 ### Requirements
 
-* Node.js
 * Docker
 * Docker Compose
+
+No local PostgreSQL or Redis installation is required when using Docker Compose.
 
 ### 1. Clone the repository
 
@@ -153,46 +139,135 @@ git clone https://github.com/ViniciusQuintas/url-shortener.git
 cd url-shortener
 ```
 
-### 2. Start the infrastructure
+### 2. Configure environment variables
 
-The backend includes a Docker Compose configuration for PostgreSQL and Redis.
+The project contains separate environment examples for Docker Compose and for running the backend directly with Node.js.
 
-```bash
-cd backend
-docker compose up -d
-```
+#### Using Docker Compose
 
-### 3. Configure environment variables
-
-Create a `.env` file based on `.env.example` in the backend directory.
+Create the root `.env` file:
 
 ```bash
 cp .env.example .env
 ```
 
-Configure the required database, Redis, and authentication variables.
+The root `.env` is used by Docker Compose to configure the PostgreSQL and backend containers.
 
-### 4. Install backend dependencies
+Example:
 
-```bash
-npm install
+```env
+POSTGRES_USER=admin
+POSTGRES_PASSWORD=admin
+POSTGRES_DB=urlshortener
+
+DATABASE_URL=postgresql://admin:admin@postgres:5432/urlshortener
+JWT_SECRET=your_secret_here
 ```
 
-Run the Prisma migrations:
+When running inside Docker, the backend connects to PostgreSQL and Redis through the Docker Compose service names:
+
+```text
+PostgreSQL → postgres:5432
+Redis      → redis:6379
+```
+
+The Redis URL is configured directly by `docker-compose.yml`:
+
+```text
+redis://redis:6379
+```
+
+#### Running the backend without Docker
+
+If the backend is executed directly on the host machine, use the backend environment file:
+
+```bash
+cd backend
+cp .env.example .env
+```
+
+In this case, services running on the host are accessed through `localhost`:
+
+```env
+DATABASE_URL=postgresql://admin:admin@localhost:5432/urlshortener
+REDIS_URL=redis://localhost:6379
+JWT_SECRET=your_secret_here
+```
+
+### 3. Start the application with Docker
+
+From the project root:
+
+```bash
+docker compose up --build
+```
+
+Docker Compose starts the complete development stack:
+
+```text
+PostgreSQL
+    ↓
+Redis
+    ↓
+Backend
+    ↓
+Frontend
+```
+
+The backend Docker image automatically:
+
+1. Installs dependencies
+2. Generates the Prisma Client
+3. Applies pending database migrations
+4. Starts the API
+
+The migration is executed automatically with:
 
 ```bash
 npx prisma migrate deploy
 ```
 
-Start the backend:
+Therefore, when using Docker Compose, **there is no need to run Prisma migrations manually**.
+
+### 4. Access the application
+
+Once the containers are running:
+
+* Frontend: `http://localhost:3001`
+* Backend API: `http://localhost:3000`
+* Health check: `http://localhost:3000/health`
+
+The backend container exposes a Docker health check through `/health`. The frontend depends on the backend becoming healthy before starting.
+
+### Stop the application
 
 ```bash
+docker compose down
+```
+
+To remove the PostgreSQL volume and all persisted database data:
+
+```bash
+docker compose down -v
+```
+
+### Running Without Docker
+
+If you choose to run the applications directly with Node.js, PostgreSQL and Redis must already be running locally.
+
+#### Backend
+
+```bash
+cd backend
+npm install
+npx prisma generate
+npx prisma migrate deploy
 npx tsx src/server.ts
 ```
 
-### 5. Start the frontend
+#### Frontend
 
-Open another terminal:
+In another terminal:
 
 ```bash
 cd frontend
@@ -200,36 +275,30 @@ npm install
 npm run dev
 ```
 
-The frontend runs on port `3001` by default.
+The application will be available at:
 
-## Current Status
+* Frontend: `http://localhost:3001`
+* Backend: `http://localhost:3000`
 
-The project is under active development.
-
-The core backend functionality, authentication, URL management, caching, rate limiting, expiration handling, background cleanup, and analytics are implemented. The frontend currently provides authentication, URL management, dashboard functionality, and analytics.
-
-Further work includes improving the application, adding additional tests, and completing the remaining production-oriented infrastructure.
 
 ## Development History
 
-The project was intentionally developed incrementally rather than being built as a single implementation.
+The project was built incrementally rather than as a single implementation. The Git history reflects this progression:
 
-The initial backend was created with Express and gradually evolved as new requirements were introduced.
+1. Initial Express server setup
+2. Docker Compose with PostgreSQL and Redis
+3. Prisma schema and database migrations
+4. User authentication with JWT and bcrypt
+5. URL creation and redirect endpoints
+6. Auth middleware and protected routes
+7. Global error handling with AppError
+8. Redis caching for redirects
+9. Rate limiting with Redis
+10. URL expiration and cron job cleanup
+11. Click tracking with ua-parser-js
+12. Analytics endpoint with daily aggregation
+13. Next.js frontend with auth and dashboard
+14. Analytics dashboard with Recharts
+15. Tests, Docker Compose for full stack, and documentation
 
-Some of the main steps in the development history include:
-
-1. Initial Express server
-2. Docker Compose and Prisma setup
-3. PostgreSQL data model and migrations
-4. User registration and authentication
-5. Protected API routes
-6. URL creation and redirection
-7. URL management
-8. Error handling middleware
-9. Redis caching and rate limiting
-10. URL expiration and scheduled cleanup
-11. Analytics and click tracking
-12. Frontend authentication and dashboard
-13. Analytics dashboard
-
-This history is part of the project itself: architectural and technical decisions were made incrementally as the application grew.
+Each step added one concern at a time, which is visible in the commit history.

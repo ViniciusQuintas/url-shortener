@@ -106,10 +106,6 @@ export default function DashboardLayout({ children }: LayoutProps<"/">) {
           >
             <div className="flex items-center gap-2">
               <div className="h-5 w-6 shrink-0 rounded-tl-lg rounded-tr-sm rounded-br-lg rounded-bl-sm bg-primary" />
-
-              <span className="font-medium text-primary is-drawer-close:hidden">
-                Vinícius
-              </span>
             </div>
           </div>
 

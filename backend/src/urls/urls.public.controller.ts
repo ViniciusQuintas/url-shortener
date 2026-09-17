@@ -33,7 +33,7 @@ router.get("/:code", async (req: Request, res: Response) => {
 
   const url = await getUrl(code);
 
-  if (url.expiresAt.getTime() < Date.now()) {
+  if (url.expiresAt && url.expiresAt.getTime() < Date.now()) {
     return res.status(410).json({ error: "Gone" });
   }
 

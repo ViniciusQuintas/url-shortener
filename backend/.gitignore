@@ -6,3 +6,6 @@ package-lock.json
 .windsurf
 skills-lock.json
 .env
+coverage/
+/prisma/migrations/
+/prisma/db/
