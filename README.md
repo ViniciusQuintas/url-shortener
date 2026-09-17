@@ -159,7 +159,6 @@ Example:
 POSTGRES_USER=admin
 POSTGRES_PASSWORD=admin
 POSTGRES_DB=urlshortener
-
 DATABASE_URL=postgresql://admin:admin@postgres:5432/urlshortener
 JWT_SECRET=your_secret_here
 ```
@@ -175,6 +174,13 @@ The Redis URL is configured directly by `docker-compose.yml`:
 
 ```text
 redis://redis:6379
+```
+
+The frontend uses `backend:3000` for internal communication with the backend container and `localhost:3000` as the public API URL accessed by the browser.
+
+```env
+API_URL=http://backend:3000
+NEXT_PUBLIC_API_URL=http://localhost:3000
 ```
 
 #### Running the backend without Docker
@@ -259,9 +265,13 @@ If you choose to run the applications directly with Node.js, PostgreSQL and Redi
 
 ```bash
 cd backend
+
 npm install
+
 npx prisma generate
+
 npx prisma migrate deploy
+
 npx tsx src/server.ts
 ```
 
@@ -271,7 +281,9 @@ In another terminal:
 
 ```bash
 cd frontend
+
 npm install
+
 npm run dev
 ```
 
@@ -279,6 +291,7 @@ The application will be available at:
 
 * Frontend: `http://localhost:3001`
 * Backend: `http://localhost:3000`
+
 
 
 ## Development History
