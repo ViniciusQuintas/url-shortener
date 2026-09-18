@@ -1,20 +1,25 @@
-import { getOriginalUrlByCode } from "@/services/urls";
 import { redirect } from "next/navigation";
 
 interface PageProps {
-  params: Promise<{ code: string }> | { code: string };
+  params: Promise<{ code: string }>;
 }
 
 export default async function RedirectPage({ params }: PageProps) {
-  const resolvedParams = await params;
-  const { code } = resolvedParams;
+  const { code } = await params;
 
-  let targetUrl: string | null = null;
+  const baseUrl = process.env.API_URL;
 
-  try {
-    const data = await getOriginalUrlByCode(code);
-    targetUrl = data?.originalUrl || data?.url;
-  } catch (error) {
+  if (!baseUrl) {
+    throw new Error("API_URL is not configured");
+  }
+
+  const response = await fetch(`${baseUrl}/urls/${code}`, {
+    method: "GET",
+    redirect: "manual",
+    cache: "no-store",
+  });
+
+  if (response.status === 404) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-2">
         <h1 className="text-2xl font-bold">404 - URL not found</h1>
@@ -25,17 +30,26 @@ export default async function RedirectPage({ params }: PageProps) {
     );
   }
 
-  if (!targetUrl) {
+  if (response.status === 410) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-2">
-        <h1 className="text-2xl font-bold">404 - URL not found</h1>
+        <h1 className="text-2xl font-bold">410 - URL expired</h1>
+        <p className="text-gray-500">
+          The shortened link provided has expired.
+        </p>
       </div>
     );
   }
 
-  if (!targetUrl.startsWith("http://") && !targetUrl.startsWith("https://")) {
-    targetUrl = `https://${targetUrl}`;
+  if (response.status >= 300 && response.status < 400) {
+    const location = response.headers.get("location");
+
+    if (!location) {
+      throw new Error("Redirect response did not contain a Location header");
+    }
+
+    redirect(location);
   }
 
-  redirect(targetUrl);
+  throw new Error(`Unexpected response from URL service: ${response.status}`);
 }

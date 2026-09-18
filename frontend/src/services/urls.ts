@@ -76,12 +76,3 @@ export async function getUrlAnalytics(id: string) {
 
   return response.analytics;
 }
-
-export async function getOriginalUrlByCode(code: string) {
-  const response = await apiFetch(`/urls/${code}`, {
-    method: "GET",
-    cache: "no-store",
-  });
-
-  return response;
-}
