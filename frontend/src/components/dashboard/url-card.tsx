@@ -16,7 +16,7 @@ interface UrlCardProps {
 }
 
 export default function UrlCard({ url }: UrlCardProps) {
-  const shortUrl = `${process.env.NEXT_PUBLIC_APP_URL}/urls/${url.code}`;
+  const shortUrl = `${process.env.NEXT_PUBLIC_APP_URL}/${url.code}`;
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(shortUrl);
